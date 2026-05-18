@@ -131,3 +131,33 @@ jobs:
         with:
           name: docs-summary
           path: docs/docs-summary.md
+
+  deploy:
+    name: Simulated deployment
+    runs-on: ubuntu-latest
+    needs: docs
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create deploy summary
+        run: |
+          mkdir -p deploy
+          echo "# Deployment Summary" > deploy/deploy-summary.md
+          echo "" >> deploy/deploy-summary.md
+          echo "Repository: $GITHUB_REPOSITORY" >> deploy/deploy-summary.md
+          echo "Branch: $GITHUB_REF_NAME" >> deploy/deploy-summary.md
+          echo "Commit: $GITHUB_SHA" >> deploy/deploy-summary.md
+          echo "Actor: $GITHUB_ACTOR" >> deploy/deploy-summary.md
+          echo "Status: simulated deployment completed successfully" >> deploy/deploy-summary.md
+
+      - name: Show deploy summary
+        run: cat deploy/deploy-summary.md
+
+      - name: Upload deploy summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-summary
+          path: deploy/deploy-summary.md
